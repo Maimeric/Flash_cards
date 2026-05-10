@@ -1,11 +1,16 @@
 import tkinter
 import  pandas as pd
 import random
+
 BACKGROUND_COLOR = "#B1DDC6"
-# --------------------------- Data --------------------------- #
-df = pd.read_csv("data/french_words.csv")
-data_to_learn = df.to_dict(orient="records")
 current_card = {}
+# --------------------------- Data --------------------------- #
+try:
+    df = pd.read_csv("data/words_to_learn.csv")
+except FileNotFoundError:
+    df = pd.read_csv("data/french_words.csv")
+
+data_to_learn = df.to_dict(orient="records")
 
 # --------------------------- functions --------------------------- #
 def next_card():
@@ -21,6 +26,12 @@ def change_card():
     canvas.itemconfigure(card_img, image=card_back_english)
     canvas.itemconfigure(card_title, text="English", fill="White")
     canvas.itemconfigure(card_word, text=f"{current_card["English"]}", fill="White")
+
+def remove_word_as_known():
+    data_to_learn.remove(current_card)
+    new_data_to_learn = pd.DataFrame(data_to_learn)
+    new_data_to_learn.to_csv("data/words_to_learn.csv", index=False)
+    next_card()
 
 # --------------------------- UI --------------------------- #
 window = tkinter.Tk()
@@ -38,7 +49,7 @@ card_word = canvas.create_text(400, 263, text="", font=("Ariel", 60, "bold"))
 canvas.grid(column= 0, row= 0, columnspan= 2)
 # Buttons
 right_img = tkinter.PhotoImage(file="images/right.png")
-right_button = tkinter.Button(image=right_img, highlightthickness= 0, command=next_card)
+right_button = tkinter.Button(image=right_img, highlightthickness= 0, command=remove_word_as_known)
 right_button.grid(column= 1, row= 1)
 wrong_img = tkinter.PhotoImage(file="images/wrong.png")
 wrong_button = tkinter.Button(image= wrong_img, highlightthickness= 0, command=next_card)
